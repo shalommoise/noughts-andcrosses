@@ -2,71 +2,159 @@ import React from "react";
 
 class Table extends React.Component {
   state = {
-    tableState: [null, null, null, null, null, null, null, null, null],
+    tableState: ["", "", "", "", "", "", "", "", ""],
     turn: true,
+    inputError: false,
+    count: 0,
+    winner: "",
   };
 
   handleChange = (changeEvent) => {
     const value = changeEvent.target.value;
     const id = changeEvent.target.id;
-    if (
-      document.getElementById("form").childNodes["14"] &&
-      document.getElementById("form").childNodes["14"].innerText ===
-        "Not Allowed"
-    ) {
-      document.getElementById("form").childNodes["14"].remove();
-    }
+
     if (value !== "x" && value !== "o" && value !== "") {
-      const warning = document.createElement("p");
-      warning.innerText = "Not Allowed";
-      document.getElementById("form").appendChild(warning);
+      this.setState((currentState) => {
+        const changeError = !currentState.inputError;
+        return { ...currentState, inputError: changeError };
+      });
     } else
       this.setState((currentState) => {
-        currentState.tableState[id] = value;
+        const newTableState = [...currentState.tableState];
+        const changeError = false;
+        newTableState[id] = value;
+        return {
+          ...currentState,
+          tableState: newTableState,
+          inputError: changeError,
+        };
       });
   };
 
   fixChange = (clickEvent) => {
+    const table = this.state.tableState;
+
     for (let i = 0; i < 9; i++) {
-      if (
-        this.state.tableState[i] === "x" ||
-        this.state.tableState[i] === "o"
-      ) {
+      if (table[i] === "x" || table[i] === "o") {
         document.getElementById(i).readOnly = true;
+        this.setState((currentState) => {
+          const newTurn = !currentState.turn;
+          const newCount = currentState.count + 1;
+          return { ...currentState, turn: newTurn, count: newCount };
+        });
       }
     }
-    this.setState((currentState) => {
-      currentState.turn = !currentState.turn;
-      return currentState;
-    });
+    if (
+      (table[0] === table[1] && table[2]) ||
+      (table[0] === table[3] && table[6]) ||
+      (table[0] === table[4] && table[8])
+    ) {
+      this.setState((currentState) => {
+        const newWinner = table[0];
+        return { ...currentState, winner: newWinner };
+      });
+    }
+    if (
+      (table[7] === table[4] && table[1]) ||
+      (table[7] === table[6] && table[8])
+    ) {
+      this.setState((currentState) => {
+        const newWinner = table[7];
+        return { ...currentState, winner: newWinner };
+      });
+    }
+    if (
+      (table[2] === table[5] && table[8]) ||
+      (table[2] === table[6] && table[4])
+    ) {
+      this.setState((currentState) => {
+        const newWinner = table[2];
+        return { ...currentState, winner: newWinner };
+      });
+    }
 
-    clickEvent.preventDefault();
-  };
-  changeTurn = (clickEvent) => {
-    // this.setState((currentState) => {
-    //   console.log(currentState.turn);
-    //   currentState.turn = !currentState.turn;
-    // });
     clickEvent.preventDefault();
   };
 
   render = () => {
     return (
-      <form id="form" /*onSubmit={this.handleSubmit}*/>
+      <form id="form">
         <br />
-        <input type="text" id="0" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="1" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="2" maxLength="1" onChange={this.handleChange} />
+        <input
+          type="text"
+          value={this.state.tableState[0]}
+          id="0"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[1]}
+          id="1"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[2]}
+          id="2"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
         <br />
-        <input type="text" id="3" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="4" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="5" maxLength="1" onChange={this.handleChange} />
+        <input
+          type="text"
+          value={this.state.tableState[3]}
+          id="3"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[4]}
+          id="4"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[5]}
+          id="5"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
         <br />
-        <input type="text" id="6" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="7" maxLength="1" onChange={this.handleChange} />
-        <input type="text" id="8" maxLength="1" onChange={this.handleChange} />
+        <input
+          type="text"
+          value={this.state.tableState[6]}
+          id="6"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[7]}
+          id="7"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="text"
+          value={this.state.tableState[8]}
+          id="8"
+          maxLength="1"
+          onChange={this.handleChange}
+        />
         <br />
-        <button onClick={this.fixChange}>{this.state.turn ? "x" : "o"}</button>
+        <br />
+        <button className="button" onClick={this.fixChange}>
+          {this.state.count % 2 === 0 ? "x" : "o"}
+        </button>
+        {this.state.inputError && <h2>Error, Can only press 'x' or 'o'</h2>}
+        {this.state.count === 9 && <h2>Game Over</h2>}
+        {this.state.winner !== "" && (
+          <h2>{this.state.winner} is the winner!</h2>
+        )}
       </form>
     );
   };
